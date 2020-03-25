@@ -453,12 +453,6 @@ static int gGlobalCounter;
 Instance variable names are mixed case and should be prefixed with an
 underscore, like `_usernameTextField`.
 
-NOTE: Google's previous convention for Objective-C ivars was a trailing
-underscore. Existing projects may opt to continue using trailing underscores in
-new code in order to maintain consistency within the project codebase.
-Consistency of prefix or suffix underscores should be maintained within each
-class.
-
 #### Constants 
 
 Constant symbols (const global and static variables and constants created
@@ -1424,9 +1418,6 @@ int CrossPlatformAPI::DoSomethingPlatformSpecific() {
   return [temp_string intValue];
 }
 ```
-
-Projects may opt to use an 80 column line length limit for consistency with
-Google's C++ style guide.
 
 ## Spacing and Formatting 
 
