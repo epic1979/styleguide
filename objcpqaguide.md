@@ -11,7 +11,6 @@
 > Note that this guide is not comprehensive.  We assume that the reader
 > is familiar with the full [Objective-C Style Guide][objc].
 
-
 ## Principles
 
 ### Optimize for the reader, not the writer
@@ -32,14 +31,14 @@ in this guide or in the full [Objective-C Style Guide][objc].
 
 1. Type all arrays, dictionaries, and sets
 2. Remove everything that can be removed from the header file.  This includes: protocol adherence, unnecessarily exposed properties and functions.  Properties and functions should be defined with the most generic type possible.
-3. Naming
-  a. _ before ivars.  
-  b. _ before private methods.
-  c. No "get" naming on properties or functions.
-  d. Limit "with" and "and" in function names.
-  e. Include caller as first parameter of all delegate callbacks (see every Apple example).
-  f. Prefix every class
-  g. Prefix every enum name.  Prefix every value with the enum name.
+3. Naming  
+   1. _ before ivars.  
+   2. _ before private methods.
+   3. No "get" naming on properties or functions.
+   4. Limit "with" and "and" in function names.
+   5. Include caller as first parameter of all delegate callbacks (see every Apple example).
+   6. Prefix every class
+   7. Prefix every enum name.  Prefix every value with the enum name.
 4. Use modern syntax.  `@[]`, `@{}`, `@()` instead of array/dictionary/number.
 5. If your API don't support something, use `NSAssert`.  Crash internally instead of silently returning `nil`.
 
@@ -50,7 +49,7 @@ This is a list of coding restrictions that lead to code that is easier to read a
 1. `if` statements should not contain comparisons or parentheses.  Instead store these in local `BOOL` variables with descriptive names.
 2. `return` should always return a local variable.  Function calls or property lookup should first be stored to a local variable.  This makes debugging easier.  Exceptions include: returning empty arrays, dictionaries, or strings.
 3. No web service (`ECF`) calls in the implementation of a `UIViewController`.  Put that into a loader/manager.
-4. No Just-in-time ivar creation.  Create these in your `init` when possible.
+4. No just-in-time ivar creation.  Create these in your `init` when possible.
 5. No over optimization.  We don't need to see `[NSArray arrayWithCapacity:]`.
 6. No more than 7 ivars in `UIViewController` subclasses.
 7. Never override `viewWillLayoutSubviews`, `viewDidLayoutSubviews`, `viewWillUpdateConstraints`, or `viewDidUpdateConstraints`.
