@@ -11,10 +11,10 @@
 >
 >
 > The purpose of this document is to describe the Objective-C (and
-> Objective-C++) coding guidelines and practices that should be used for iOS and
-> OS X code. These guidelines have evolved and been proven over time on other
+> Objective-C++) coding guidelines and practices that should be used for iOS.
+> These guidelines have evolved and been proven over time on other
 > projects and teams.
-> Open-source projects developed by Google conform to the requirements in this guide.
+> Projects developed by Epic conform to the requirements in this guide.
 >
 > Note that this guide is not an Objective-C tutorial. We assume that the reader
 > is familiar with the language. If you are new to Objective-C or need a
