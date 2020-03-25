@@ -1,37 +1,27 @@
-## Welcome to GitHub Pages
+Epic Style Guides
+===================
 
-You can use the [editor on GitHub](https://github.com/epic1979/styleguide/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+Every major open-source project has its own style guide: a set of conventions
+(sometimes arbitrary) about how to write code for that project. It is much
+easier to understand a large codebase when all the code in it is in a
+consistent style.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+“Style” covers a lot of ground, from “use camelCase for variable names” to
+“never use global variables” to “never use exceptions.” This project
+([epic1979/styleguide](https://github.com/epic1979/styleguide)) links to the
+style guidelines we use for Epic code. If you are modifying a project that
+originated at Epic, you may be pointed to this page to see the style guides
+that apply to that project.
 
-### Markdown
+This project holds the [Objective-C Style Guide][objc].
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+The style guides in this project are licensed under the CC-By 3.0 License,
+which encourages you to share these documents.
+See [https://creativecommons.org/licenses/by/3.0/][ccl] for more details.
 
-```markdown
-Syntax highlighted code block
+<a rel="license" href="https://creativecommons.org/licenses/by/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/3.0/88x31.png" /></a>
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/epic1979/styleguide/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+[swift]: https://google.github.io/swift/
+[objc]: objcguide.md
+[java]: https://google.github.io/styleguide/javaguide.html
+[ccl]: https://creativecommons.org/licenses/by/3.0/
