@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="styleguide.xsl"?>
+<GUIDE title="Epic Objective-C Style Guide (for PQA)">
+  <p>
+    The style guide has moved to
+    <a href="https://github.com/epic1979/styleguide/blob/master/objcpqaguide.md">objcpqaguide.md</a>
+  </p>
+</GUIDE>
