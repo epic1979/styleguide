@@ -1,9 +1,5 @@
 # Epic Objective-C Style Guide (for PQA)
 
-
-> Objective-C is a dynamic, object-oriented extension of C. It's designed to be
-> easy to use and read, while enabling sophisticated object-oriented design.
->
 > The purpose of this document is to describe the Objective-C coding
 > guidelines and practices that we see most commonly not followed.  This
 > is not a fault of the developer, before this guide we have never been
@@ -31,12 +27,7 @@ for the reader is valuable.
 
 Names should be as descriptive as possible, within reason. Follow standard
 [Objective-C naming
-rules](https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/CodingGuidelines/CodingGuidelines.html).
-
-Avoid non-standard abbreviations (including non-standard acronyms and
-initialisms). Don't worry about saving horizontal space as it is far more
-important to make your code immediately understandable by a new reader. For
-example:
+rules](https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/CodingGuidelines/CodingGuidelines.html). Avoid non-standard abbreviations (including non-standard acronyms and initialisms).
 
 ```objectivec 
 // GOOD:
@@ -64,9 +55,8 @@ p = [network port];
 
 ### Prefixes
 
-Classes, protocols, global functions, and global constants
-should generally be named with a prefix that begins with a capital letter
-followed by one or more capital letters or numbers.
+Classes and protocols should generally be named with a prefix that begins
+with three capital letters.
 
 ```objectivec 
 // GOOD:
@@ -88,11 +78,6 @@ extern NSTimeZone *GTMGetDefaultTimeZone(void);
 ```
 
 ### Objective-C Method Names 
-
-The method name should read like a sentence if possible, meaning you should
-choose parameter names that flow with the method name. Objective-C method names
-tend to be very long, but this has the benefit that a block of code can almost
-read like prose, thus rendering many implementation comments unnecessary.
 
 Use prepositions and conjunctions like "with", "from", and "to" in the second
 and later parameter names only where necessary to clarify the meaning or
@@ -165,12 +150,8 @@ for more details on Objective-C naming.
 ### Variable Names 
 
 Variable names typically start with a lowercase and use mixed case to delimit
-words. For example: `myLocalVariable` and `_myInstanceVariable`.
-
-#### Instance Variables 
-
-Instance variable names are mixed case and should be prefixed with an
-underscore, like `_usernameTextField`.
+words. For example: `myLocalVariable`.  Instance variable names are mixed case and
+should be prefixed with an underscore, like `_myInstanceVariable`.
 
 ## Cocoa and Objective-C Features 
 
