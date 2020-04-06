@@ -29,7 +29,7 @@ for the reader is valuable.
 This is a quick list of conventions that are decribed in more detail further down
 in this guide or in the full [Objective-C Style Guide][objc].
 
-1. Type all arrays, dictionaries, and sets
+1. Type all arrays, dictionaries, and sets using [Lightweight Generics][generictyping]
 2. Remove everything that can be removed from the header file.  This includes: protocol adherence, unnecessarily exposed properties and functions.  Properties and functions should be defined with the most generic type possible.
 3. Naming 
    1. _ before ivars. 
@@ -268,3 +268,4 @@ When updating legacy code, consider also breaking long functions into smaller
 and more manageable pieces.
 
 [objc]: objcguide.md
+[generictyping]: objcguide.md#use-lightweight-generics-to-document-contained-types
