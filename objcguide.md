@@ -277,7 +277,7 @@ An example source file.
   [self _requestAudioResource];
 }
 
--(void)_configureViewForRepresentedObject {
+- (void)_configureViewForRepresentedObject {
 
   // only configure view if it is loaded and there exists a represented object
   // remember to call this from both the representedObject setter and viewDidLoad
