@@ -56,10 +56,8 @@ features or idioms.
 The benefit of a style rule must be large enough to justify asking engineers to
 remember it. The benefit is measured relative to the codebase we would get
 without the rule, so a rule against a very harmful practice may still have a
-small benefit if people are unlikely to do it anyway. This prainciple mostly
-explains the rules we don’t have, rather than the rules we do: for example, goto
-contravenes many of the following principles, but is not discussed due to its
-extreme rarity.
+small benefit if people are unlikely to do it anyway. This principle mostly
+explains the rules we don’t have, rather than the rules we do.
 
 ## Example
 
@@ -69,47 +67,83 @@ example that should give you a feel for the style, spacing, naming, and so on.
 ```objectivec
 // GOOD:
 
+/*!
+ * A sample header demonstrating good Objective-C style. Comments must
+ * be adjacent to the object they're documenting.
+ */
 @import Foundation;
-
-@class Bar;
+@import UIKit;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * A sample class demonstrating good Objective-C style. Comments must
- * be adjacent to the object they're documenting.
+/** Ephemeral view events */
+typedef NS_ENUM(NSInteger, WRDMessageDetailViewControllerAction) {
+    WRDMessageDetailViewControllerActionEdit,
+    WRDMessageDetailViewControllerActionCancel,
+    WRDMessageDetailViewControllerActionSave,
+};  // events the view controller may initiate
+
+typedef NSString *WRDMessageDetailInputIdentifier;
+
+@protocol WRDMessageDetailViewControllerDelegate;
+
+//________________________________________________________________________________________________________
+// The data model for displaying details
+
+/** Immutable detail model */
+
+@interface WRDMessageDetailModel : NSObject <NSCopying, NSMutableCopying>
+
+- (instancetype)initWithHtml:(NSString *)html
+                     patient:(WRDPatient *)patient
+                  inputTexts:(NSDictionary<NSString *, NSString *> *)inputTexts NS_DESIGNATED_INITIALIZER;
+
+/** html is displayed to the user as the primary content for the details view */
+@property (nonatomic, readonly, copy) NSString *html;
+
+/** patient identifiers, including name, MRN, and photo, are shown to the user to
+ * ensure documentation occurs on the correct patient
  */
-@interface Foo : NSObject
+@property (nonatomic, readonly, copy) WRDPatient *patient;
 
-/**
- * Designated initializer.
- * Only exists because we need 'bar' property to be exposed but
- * it should never change and so should be marked readonly.
+/** native input fields are placed over their respective html elements to support
+ * speech to text input natively.  Use this to configure the initial text input in
+ * each field.  Each of the texts is copied.
  */
-- (instancetype)initWithBar:(Bar *)bar NS_DESIGNATED_INITIALIZER;
-
-/**
- * Must be initialized with bar
- */
-- (instancetype)init NS_UNAVAILABLE;
-
-@property (nonatomic, readonly) Bar *bar;
-
-/** The current drawing attributes.  Default: nil. */
-@property (nonatomic, copy) NSDictionary<NSString *, NSNumber *> *attributes;
-
-/**
- * Does some work with @c blah.
- * @return YES if the work was completed; NO otherwise.
- */
-- (BOOL)doWorkWithBlah:(NSString *)blah;
+@property (nonatomic, readonly, copy) NSDictionary <WRDMessageDetailInputIdentifier, NSString *> *inputTexts;
 
 @end
 
-@interface Foo (Convenience)
+/** Mutable detail model */
 
-/** See -initWithBar: for details about @c bar. */
-+ (instancetype)fooWithBar:(Bar *)bar;
+@interface WRDMutableDetailModel : WRDMessageDetailModel
+
+@property (nonatomic, readwrite, copy) NSString *html;
+@property (nonatomic, readwrite, copy) WRDPatient *patient;
+@property (nonatomic, readwrite, copy) NSMutableDictionary <WRDMessageDetailInputIdentifier, NSString *> *inputTexts;
+
+@end
+
+//________________________________________________________________________________________________________
+
+@interface WRDMessageDetailViewController : UIViewController
+
+/** The object whose value is being presented in the view. */
+@property (nonatomic, copy) WRDMessageDetailModel *representedObject;
+
+@property (nonatomic, weak) id<WRDMessageDetailViewControllerDelegate> delegate;
+
+/** Set this to NO to disable all actions available in the toolbar and navigationBar */
+- (void)setBarActionsEnabled:(BOOL)enabled;
+
+@end
+
+//________________________________________________________________________________________________________
+// respond to the user interaction with the view.
+
+@protocol WRDMessageDetailViewControllerDelegate <NSObject>
+
+- (void)detailController:(WRDMessageDetailViewController*)controller initiatedAction:(WRDMessageDetailViewControllerAction)action;
 
 @end
 
@@ -121,46 +155,173 @@ An example source file.
 ```objectivec
 // GOOD:
 
-#import "Foo.h"
-#import "Bar.h"
+#import "WRDMessageDetailViewController.h"
 
-@implementation Foo {
-  /** The string used for displaying "hi". */
-  NSString *_string;
-}
+@import SpeechToText;
 
-- (instancetype)init {
-  // Classes with a custom designated initializer should always override
-  // the superclass's designated initializer.
-  NSAssert(NO, @"Must provide argument 'bar'.")
-  return [self initWithBar:nil];
-}
+@interface WRDMessageDetailViewController () <WRDInputControllerDelegate, ATCResourceRequestor>
 
-- (instancetype)initWithBar:(Bar *)bar {
-  self = [super init];
-  if (self) {
-    _bar = [bar copy];
-    _string = [NSString stringWithFormat:@"hi %d", 3];
-    _attributes = @{
-      @"color" : [UIColor blueColor],
-      @"hidden" : @NO
-    };
-  }
-  return self;
-}
-
-- (BOOL)doWorkWithBlah:(NSString *)blah {
-  // Work should be done here.
-  return NO;
-}
+// readonly casted reference to the view controller's view.
+@property (nonatomic, readonly) WRDMessageDetailView *detailView;
 
 @end
 
-@implementation Foo (Convenience)
+@implementation WRDMessageDetailViewController {
+  // store references to native input controllers
+  NSMutableDictionary <WRDMessageDetailInputIdentifier, IBDLAnchorInputController*> *_inputControllers;
 
-+ (instancetype)fooWithBar:(Bar *)bar {
-  return [[self alloc] initWithBar:bar];
+  // The patient header view
+  WRDPatientViewController *_patientViewController;
+
+  WRDMutableDetailModel *_representedObject;
+
+  struct {
+    BOOL waitingToSave;
+    BOOL audioResourceRequestFailed;
+  } _flags;
 }
+
+/** Lifecycle methods go at the top of an implementation file, with dealloc and init methods first */
+/*
+ * MARK: Lifecycle methods
+ */
+- (void)dealloc {
+  // Give up the microphone if we still have it. If we don't, we'll be ignored anyway
+  [ATCResourceCoordinator.sharedCoordinator requestor:self resignResourceType:ATCResourceTypeAudioInput];
+}
+
+- (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil {
+  /** Always override superclass's designated initializer */
+  self = [super init];
+  if (self) {
+    /** Initialize non-view instance variables in the initializer */
+    _patientViewController = [IBPatientViewController new];
+    _inputControllers = [NSMutableDictionary new];
+
+    self.automaticallyAdjustsScrollViewInsets = NO;
+
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(_saveTapped)];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(_cancelTapped)];
+  }
+
+  return self;
+}
+
+- (void)loadView {
+  /** Most of the configuration goes in the viewDidLoad function to better support changing
+   * how the view is initialized, for example from a nib or SwiftUI
+   */
+  self.view = [WRDMessageDetailView new];
+}
+
+- (void)viewDidLoad {
+  [super viewDidLoad];
+
+  // A side effect of configuring the view for the representedObject is that
+  // _patientViewController's view gets added to our view. After this we need to
+  // remember to call -didMoveToParentViewController:
+  [self addChildViewController:_patientViewController];
+  [self _configureViewForRepresentedObject];
+  [_patientViewController didMoveToParentViewController:self];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+  [super viewWillDisappear:animated];
+
+  if(self.isEditing) {
+    [self.view endEditing:YES];
+    [self _trySave];
+  }
+
+  [ATCResourceCoordinator.sharedCoordinator requestor:self resignResourceType:ATCResourceTypeAudioInput];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+
+  /** epicConnection is not referenced until it is safe to do so in the view appearance methods */
+  if (self.epicConnection.serverInfo.readOnly) {
+    [self _disableAllAnchorControllers];
+    return;
+  }
+
+  /** Logically related code is moved into its own, well-named function to
+   *  make it easier for the next developer to understand what the individual
+   *  logical components of the current function are.
+   */
+  [self _requestAudioResource];
+}
+
+/* Overridden getter for property */
+- (WRDMessageDetailView *)messageDetailView {
+  // use viewIfLoaded to safeguard against accidently loading the view too soon
+  return (id)self.viewIfLoaded;
+}
+
+/*
+ * MARK: REPRESENTED OBJECT
+ */
+- (void)setRepresentedObject:(WRDMessageDetailModel *)representedObject {
+  
+  // always copy potentially mutable input and declare the copy attribute in
+  // the property definition in the header even if it isn't functionally necessary
+  _representedObject = [representedObject mutableCopy];
+
+  [self _configureViewForRepresentedObject];
+  [self _requestAudioResource];
+}
+
+-(void)_configureViewForRepresentedObject {
+
+  // only configure view if it is loaded and there exists a represented object
+  // remember to call this from both the representedObject setter and viewDidLoad
+  if(!self.isViewLoaded || !_representedObject) {
+    return;
+  }
+
+  // update patient controller
+  _patientViewController.patient = _representedObject.patient;
+
+  // === update input controllers ===
+
+  // cache off existing inputControllers and add back if identifier still exists
+  NSMutableDictionary *currentInputControllers = [_inputControllers mutableCopy];
+  [_inputControllers removeAllObjects];
+
+  // set of views to be passed to self.messageDetailView for the native input controllers
+  NSMutableDictionary <WRDMessageDetailInputIdentifier, UIView *> *anchorViews = [NSMutableDictionary new];
+
+  // create or reuse controllers and views for the provided input texts
+  for (WRDMessageDetailInputIdentifier identifier in _representedObject.inputTexts) {
+    WRDInputController *controller = currentInputControllers[identifier];
+
+    // if a controller doesn't exist for this identifier, create one
+    if(!controller) {
+      controller = [WRDInputController new];
+      controller.delegate = self;
+      [self addChildViewController:controller];
+      [controller didMoveToParentViewController:self];
+    }
+
+    // configure the controller for the current _representedObject
+    controller.representedObject = _representedObject.inputTexts[identifier];
+
+    // store the controller and add to new set of views
+    _inputControllers[identifier] = controller;
+    anchorViews[identifier] = controller.view;
+  }
+
+  // update the view by creating a new view model
+  WRDMessageDetailViewModel *viewModel = [IBDLMessageDetailViewModel new];
+  viewModel.html = _representedObject.html;
+  viewModel.headerView = _patientViewController.view;
+  viewModel.anchorViews = anchorViews;
+
+  // set all update data in a single entry point by setting the view's representedObject property
+  self.messageDetailView.representedObject = viewModel;
+}
+
+//...
 
 @end
 ```
@@ -200,27 +361,13 @@ for acronyms and
 within the name. This follows Apple's standard of using all capitals within a
 name for acronyms such as URL, ID, TIFF, and EXIF.
 
-Names of C functions and typedefs should be capitalized and use camel case as
-appropriate for the surrounding code.
-
-### File Names
-
-File names should reflect the name of the class implementation that they
-contain—including case.
-
-File names for categories should include the name of the class being extended,
-like UITextView+GTMAutocomplete.h or NSString+GTMUtils.h.
-
 ### Prefixes
 
 Prefixes are commonly required in Objective-C to avoid naming collisions in a
-global namespace. Classes, protocols, global functions, and global constants
-should generally be named with a prefix that begins with a capital letter
-followed by one or more capital letters or numbers.
-
-WARNING: Apple reserves two-letter prefixes—see
-[Conventions in Programming with Objective-C](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ProgrammingWithObjectiveC/Conventions/Conventions.html)—so
-prefixes with a minimum of three characters are considered best practice.
+global namespace. Classes, protocols, and enums should generally be named with
+a prefix that begins with three capital letters.  This is because Apple reserves
+two-letter prefixes—see
+[Conventions in Programming with Objective-C](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ProgrammingWithObjectiveC/Conventions/Conventions.html).
 
 ```objectivec
 // GOOD:
@@ -239,16 +386,14 @@ extern NSTimeZone *GTMGetDefaultTimeZone(void);
 ### Class Names
 
 Class names (along with category and protocol names) should start as uppercase
-and use mixed case to delimit words.
-
-Classes and protocols in code shared across multiple applications must have an
-appropriate [prefix](#prefixes) (e.g. GTMSendMessage). Prefixes are recommended,
-but not required, for other classes and protocols.
+and use mixed case to delimit words. Classes and protocols in code shared across
+multiple files (i.e. outside an implementation file) must have an appropriate
+[prefix](#prefixes) (e.g. GTMSendMessage).
 
 ### Category Naming
 
 Category names should start with an appropriate [prefix](#prefixes) identifying
-the category as part of a project or open for general use.
+the category as part of a project.
 
 Category source file names should begin with the class being extended followed
 by a plus sign and the name of the category, e.g., `NSString+GTMParsing.h`.
@@ -270,8 +415,9 @@ parenthesis of the category.
 @end
 ```
 
-If a class is not shared with other projects, categories extending it may omit
-name prefixes and method name prefixes.
+It is recommended to use categories in an implementation file to better separate
+logic and make the code more readable.  In this case categories may omit name
+prefixes and method name prefixes.
 
 ```objectivec
 // GOOD:
@@ -345,22 +491,12 @@ should not be prefixed with the word `get`. For example:
 Accessors that return the value of boolean adjectives have method names
 beginning with `is`, but property names for those methods omit the `is`.
 
-Dot notation is used only with property names, not with method names.
-
 ```objectivec
 // GOOD:
 
 @property(nonatomic, getter=isGlorious) BOOL glorious;
-- (BOOL)isGlorious;
 
-BOOL isGood = object.glorious;      // GOOD.
-BOOL isGood = [object isGlorious];  // GOOD.
-```
-
-```objectivec
-// AVOID:
-
-BOOL isGood = object.isGlorious;    // AVOID.
+BOOL isGood = object.isGlorious;      // GOOD.
 ```
 
 See [Apple's Guide to Naming
@@ -428,6 +564,14 @@ duration declared within implementation files:
 static const int kFileCount = 12;
 static NSString *const kUserKey = @"kUserKey";
 ```
+
+### File Names
+
+File names should reflect the name of the class implementation that they
+contain—including case.
+
+File names for categories should include the name of the class being extended,
+like UITextView+GTMAutocomplete.h or NSString+GTMUtils.h.
 
 ## Types and Declarations
 
