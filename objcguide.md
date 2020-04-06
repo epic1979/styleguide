@@ -65,7 +65,6 @@ They say an example is worth a thousand words, so let's start off with an
 example that should give you a feel for the style, spacing, naming, and so on.
 
 ```objectivec
-// GOOD:
 
 /*!
  * A sample header demonstrating good Objective-C style. Comments must
@@ -116,7 +115,7 @@ typedef NSString *WRDMessageDetailInputIdentifier;
 
 /** Mutable detail model */
 
-@interface WRDMutableDetailModel : WRDMessageDetailModel
+@interface WRDMutableMessageDetailModel : WRDMessageDetailModel
 
 @property (nonatomic, readwrite, copy) NSString *html;
 @property (nonatomic, readwrite, copy) WRDPatient *patient;
@@ -143,7 +142,9 @@ typedef NSString *WRDMessageDetailInputIdentifier;
 
 @protocol WRDMessageDetailViewControllerDelegate <NSObject>
 
-- (void)detailController:(WRDMessageDetailViewController*)controller initiatedAction:(WRDMessageDetailViewControllerAction)action;
+/*! The caller is always passed as the first parameter in delegate methods
+ */
+- (void)detailController:(WRDMessageDetailViewController *)controller initiatedAction:(WRDMessageDetailViewControllerAction)action;
 
 @end
 
@@ -153,12 +154,11 @@ NS_ASSUME_NONNULL_END
 An example source file.
 
 ```objectivec
-// GOOD:
-
 #import "WRDMessageDetailViewController.h"
-
 @import SpeechToText;
 
+/*! Protocol adherence in implementation file if unnecessary to expose externally.
+ */
 @interface WRDMessageDetailViewController () <WRDInputControllerDelegate, ATCResourceRequestor>
 
 // readonly casted reference to the view controller's view.
@@ -173,7 +173,7 @@ An example source file.
   // The patient header view
   WRDPatientViewController *_patientViewController;
 
-  WRDMutableDetailModel *_representedObject;
+  WRDMutableMessageDetailModel *_representedObject;
 
   struct {
     BOOL waitingToSave;
@@ -181,7 +181,9 @@ An example source file.
   } _flags;
 }
 
-/** Lifecycle methods go at the top of an implementation file, with dealloc and init methods first */
+/*! Lifecycle methods go at the top of an implementation file, with dealloc and init methods first
+ */
+
 /*
  * MARK: Lifecycle methods
  */
@@ -191,10 +193,12 @@ An example source file.
 }
 
 - (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil {
-  /** Always override superclass's designated initializer */
+  /*! Always override superclass's designated initializer
+   */
   self = [super init];
   if (self) {
-    /** Initialize non-view instance variables in the initializer */
+    /*! Initialize non-view instance variables in the initializer
+     */
     _patientViewController = [IBPatientViewController new];
     _inputControllers = [NSMutableDictionary new];
 
@@ -208,7 +212,7 @@ An example source file.
 }
 
 - (void)loadView {
-  /** Most of the configuration goes in the viewDidLoad function to better support changing
+  /*! Most of the configuration goes in the viewDidLoad function to better support changing
    * how the view is initialized, for example from a nib or SwiftUI
    */
   self.view = [WRDMessageDetailView new];
@@ -239,13 +243,14 @@ An example source file.
 - (void)viewDidAppear:(BOOL)animated {
   [super viewDidAppear:animated];
 
-  /** epicConnection is not referenced until it is safe to do so in the view appearance methods */
+  /*! epicConnection is not referenced until it is safe to do so in the view appearance methods
+   */
   if (self.epicConnection.serverInfo.readOnly) {
     [self _disableAllAnchorControllers];
     return;
   }
 
-  /** Logically related code is moved into its own, well-named function to
+  /*! Logically related code is moved into its own, well-named function to
    *  make it easier for the next developer to understand what the individual
    *  logical components of the current function are.
    */
@@ -263,8 +268,9 @@ An example source file.
  */
 - (void)setRepresentedObject:(WRDMessageDetailModel *)representedObject {
   
-  // always copy potentially mutable input and declare the copy attribute in
-  // the property definition in the header even if it isn't functionally necessary
+  /*! Potentially mutable input are always copied and declared with the copy attribute in
+   * the property definition in the header even if it isn't functionally necessary
+   */
   _representedObject = [representedObject mutableCopy];
 
   [self _configureViewForRepresentedObject];
