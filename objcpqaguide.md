@@ -30,9 +30,9 @@ This is a quick list of conventions that are decribed in more detail further dow
 in this guide or in the full [Objective-C Style Guide][objc].
 
 1. Type all arrays, dictionaries, and sets using [Lightweight Generics][generictyping]
-2. Remove everything that can be removed from the header file.  This includes: protocol adherence, unnecessarily exposed properties and functions.  Properties and functions should be defined with the most generic type possible.
-3. Naming 
-   1. _ before ivars. 
+2. Remove everything that can be removed from the header file to [Keep the Public API Simple][cleanheaders]
+3. [Naming][naming]
+   1. _ before ivars.
    2. _ before private methods.
    3. No "get" naming on properties or functions.
    4. Limit "with" and "and" in function names.
@@ -60,7 +60,7 @@ This is a list of coding restrictions that lead to code that is easier to read a
 
 ## Naming cheatsheet
 
-See the full [Objective-C Style Guide][objc] for additional details.
+See the full [Naming][naming] section of the [Objective-C Style Guide][objc] for additional details.
 
 ### Preferred
 
@@ -132,23 +132,23 @@ static NSString *const kUserKey = @"kUserKey";
 
 ## Cocoa and Objective-C Features
 
-### Identify Designated Initializer
+### Identify Designated Initializer ([source][identify_designated_init])
 
 Clearly identify your designated initializer using the `NS_DESIGNATED_INITIALIZER` macro.
 
-### Override Designated Initializer
+### Override Designated Initializer ([source][override_designated_init])
 
 When writing a subclass that requires an `init...` method, make sure you
 override the designated initializer of the superclass. If you fail to override
 the designated initializer of the superclass, your initializer may not be called
 in all cases, leading to subtle and very difficult to find bugs.
 
-### Keep the Public API Simple
+### Keep the Public API Simple ([source][cleanheaders])
 
 Keep your class simple; avoid "kitchen-sink" APIs. If a method doesn't need to
 be public, keep it out of the public interface.
 
-### Setters copy NSStrings
+### Setters copy NSStrings ([source][setters_copy_nsstrings])
 
 Setters taking an `NSString` should always copy the string it accepts. This is
 often also appropriate for collections like `NSArray` and `NSDictionary`.
@@ -171,7 +171,7 @@ held as a copy or mutable copy of the original.
 }
 ```
 
-### Use Lightweight Generics to Document Contained Types
+### Use Lightweight Generics to Document Contained Types ([source][generictyping])
 
 Every `NSArray`, `NSDictionary`, or `NSSet` reference should be declared using
 lightweight generics for improved type safety and to explicitly document usage.
@@ -185,7 +185,7 @@ lightweight generics for improved type safety and to explicitly document usage.
 NSMutableArray<MyLocation *> *mutableLocations = [otherObject.locations mutableCopy];
 ```
 
-### Nullability
+### Nullability ([source][nullability])
 
 Interfaces can be decorated with nullability annotations to describe how the
 interface should be used and how it behaves.
@@ -214,14 +214,14 @@ NSArray<GTMBook *> *_Nullable GTMLoadBooksFromFile(NSString *_Nonnull path);
 
 ## Cocoa Patterns
 
-### Delegate Pattern
+### Delegate Pattern ([source][delegate_pattern])
 
 Delegates, target objects, and block pointers should not be retained when doing
 so would create a retain cycle.  Instead, prefer to weakly capture these references.
 
 ## Spacing and Formatting
 
-### Spaces vs. Tabs
+### Spaces vs. Tabs ([source][spaces_vs_tabs])
 
 Use only spaces, and indent 4 spaces at a time. We use spaces for indentation.
 Do not use tabs in your code.
@@ -229,14 +229,14 @@ Do not use tabs in your code.
 You should set your editor to emit spaces when you hit the tab key, and to trim
 trailing spaces on lines.
 
-### Line Length
+### Line Length ([source][line_length])
 
 The maximum line length for Objective-C files is 100 columns.
 
 You can make violations easier to spot by enabling *Preferences > Text Editing >
 Page guide at column: 100* in Xcode.
 
-### Method Declarations and Definitions
+### Method Declarations and Definitions ([source][method_declarations_and_definitions])
 
 One space should be used between the `-` or `+` and the return type, and no
 spacing in the parameter list except between parameters and any * in the parameter typing.
@@ -251,7 +251,7 @@ Methods should look like this:
 }
 ```
 
-### Function Length
+### Function Length ([source][function_length])
 
 Prefer small and focused functions.
 
@@ -269,3 +269,14 @@ and more manageable pieces.
 
 [objc]: objcguide.md
 [generictyping]: objcguide.md#use-lightweight-generics-to-document-contained-types
+[cleanheaders]: objcguide.md#keep-the-public-api-simple
+[naming]: objcguide.md#naming
+[identify_designated_init]: objcguide.md#identify-designated-initializer
+[override_designated_init]: objcguide.md#override-designated-initializer
+[setters_copy_nsstrings]: objcguide.md#setters-copy-nsstrings
+[nullability]: objcguide.md#nullability
+[delegate_pattern]: objcguide.md#delegate-pattern
+[spaces_vs_tabs]: objcguide.md#spaces-vs-tabs
+[line_length]: objcguide.md#line-length
+[method_declarations_and_definitions]: objcguide.md#method-declarations-and-definitions
+[function_length]: objcguide.md#function-length
