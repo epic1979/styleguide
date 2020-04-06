@@ -65,68 +65,67 @@ See the full [Objective-C Style Guide][objc] for additional details.
 ### Preferred
 
 ```objc
-
-// => Avoid non-standard abbreviations
+// Avoid non-standard abbreviations
 int numberOfErrors = 0;
 int completedConnectionsCount = 0;
 detailsViewController = [DetailsViewController new];
 
-// => Use all capitals for acronyms and initialisms within the name
+// Use all capitals for acronyms and initialisms within the name
 serviceURL = [NSURL URLWithString:@"https://server/path"];
 
-// => Prefix classes, protocols, global constants, and enums with three capital letters
+// Prefix classes, protocols, global constants, and enums with three capital letters
 @protocol GTMExampleDelegate <NSObject>
 @end
 
 extern NSString *GTMExampleErrorDomain;
 
-// => File names reflect the name of the class implementation that they contain
-// GTMExample.h
+// File names reflect the name of the class implementation that they contain
+/* GTMExample.h */
 @interface GTMExample : NSObject
 @end
 
-// => File names for categories should include the name of the class being extended
-// UIViewController+GTMCrashReporting.h
+// File names for categories should include the name of the class being extended
+/* UIViewController+GTMCrashReporting.h */
 @interface UIViewController (GTMCrashReporting)
 
-// => Prefix categories
+// Prefix categories
 @property(nonatomic, setter=gtm_setUniqueIdentifier:) int gtm_uniqueIdentifier;
 - (nullable NSData *)gtm_encodedState;
 @end
 
-// => Method name should read like a sentence.
+// Method name should read like a sentence
+- (void)addTarget:(id)target action:(SEL)action;                          // no conjunction needed
 // Use "with", "from", and "to" in the second and later parameter names only where necessary
-- (void)addTarget:(id)target action:(SEL)action;                          // GOOD; no conjunction needed
-- (CGPoint)convertPoint:(CGPoint)point fromView:(UIView *)view;           // GOOD; conjunction clarifies parameter
+- (CGPoint)convertPoint:(CGPoint)point fromView:(UIView *)view;           // conjunction clarifies parameter
 - (void)replaceCharactersInRange:(NSRange)aRange
-            withAttributedString:(NSAttributedString *)attributedString;  // GOOD.
+            withAttributedString:(NSAttributedString *)attributedString;
 
-// => Methods that returns an object should beginning with a noun identifying the object
+// Methods that returns an object should beginning with a noun identifying the object
 - (Sandwich *)sandwich;
 
-// => Accessors should be named the same as the object it's getting
+// Accessors should be named the same as the object it's getting
 - (id)delegate;
 
 // It should not be prefixed with the word `get`
-// BAD: - (id)getDelegate;
+// - (id)getDelegate;  // AVOID
 
-// => local variables use camel case
+// Local variables use camel case
 int myLocalVariable;
 
-// => instance variables use camel case and begin with an underscore
+// Instance variables use camel case and begin with an underscore
 UITextField *_usernameTextField;
 
-// => private functions begin with an underscore
+// Private functions begin with an underscore
 - (void)_performInternalAction;
 
-// => Prefix constants like `ClassNameConstantName` or `ClassNameEnumName`
-// For swift interop, enumerated values should have names that extend the typedef name
+// Prefix constants like `ClassNameConstantName` or `ClassNameEnumName`
 typedef NS_ENUM(NSInteger, WRDDisplayTinge) {
+  // For swift interop, enumerated values should have names that extend the typedef name
   WRDDisplayTingeGreen = 1,
   WRDDisplayTingeBlue = 2,
 };
 
-// => use k for constants of static storage declared within implementation files
+// Use k for constants of static storage declared within implementation files
 static const int kFileCount = 12;
 static NSString *const kUserKey = @"kUserKey";
 ```
