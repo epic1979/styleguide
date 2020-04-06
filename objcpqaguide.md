@@ -11,9 +11,9 @@
 > Note that this guide is not comprehensive.  We assume that the reader
 > is familiar with the full [Objective-C Style Guide][objc].
 
-## Principles
+## Principles ([source][principles])
 
-### Optimize for the reader, not the writer
+### Optimize for the reader, not the writer ([source][optimize-for-the-reader-not-the-writer])
 
 Codebases often have extended lifetimes and more time is spent reading the code
 than writing it. We explicitly choose to optimize for the experience of our
@@ -268,6 +268,8 @@ When updating legacy code, consider also breaking long functions into smaller
 and more manageable pieces.
 
 [objc]: objcguide.md
+[principles]: objcguide.md#principles
+[optimize-for-the-reader-not-the-writer]: objcguide.md#optimize-for-the-reader-not-the-writer
 [generictyping]: objcguide.md#use-lightweight-generics-to-document-contained-types
 [cleanheaders]: objcguide.md#keep-the-public-api-simple
 [naming]: objcguide.md#naming
