@@ -199,7 +199,7 @@ An example source file.
   if (self) {
     /*! Initialize non-view instance variables in the initializer
      */
-    _patientViewController = [IBPatientViewController new];
+    _patientViewController = [WRDPatientViewController new];
     _inputControllers = [NSMutableDictionary new];
 
     self.automaticallyAdjustsScrollViewInsets = NO;
