@@ -332,6 +332,116 @@ An example source file.
 @end
 ```
 
+## Most Important Best Practices
+
+The most important best practice sections below have been copied here
+to make it easier to identify and learn what the most important pieces
+of this document are.
+
+### Keep the Public API Simple
+
+Keep your class simple; avoid "kitchen-sink" APIs. If a method doesn't need to
+be public, keep it out of the public interface.
+
+Unlike C++, Objective-C doesn't differentiate between public and private
+methods; any message may be sent to an object. As a result, avoid placing
+methods in the public API unless they are actually expected to be used by a
+consumer of the class. This helps reduce the likelihood they'll be called when
+you're not expecting it. This includes methods that are being overridden from
+the parent class.
+
+Since internal methods are not really private, it's easy to accidentally
+override a superclass's "private" method, thus making a very difficult bug to
+squash. In general, private methods should have a fairly unique name that will
+prevent subclasses from unintentionally overriding them.
+
+### Override Designated Initializer
+
+When writing a subclass that requires an `init...` method, make sure you
+override the designated initializer of the superclass. If you fail to override
+the designated initializer of the superclass, your initializer may not be called
+in all cases, leading to subtle and very difficult to find bugs.
+
+### Use Lightweight Generics to Document Contained Types
+
+All projects compiling on Xcode 7 or newer versions should make use of the
+Objective-C lightweight generics notation to type contained objects.
+
+Every `NSArray`, `NSDictionary`, or `NSSet` reference should be declared using
+lightweight generics for improved type safety and to explicitly document usage.
+Always use the most descriptive common superclass or protocol available to avoid
+leaking unnecessary implementation details.
+
+```objectivec
+// GOOD:
+
+@property(nonatomic, copy) NSArray<Location *> *locations;
+@property(nonatomic, copy, readonly) NSSet<NSString *> *identifiers;
+
+NSMutableArray<MyLocation *> *mutableLocations = [otherObject.locations mutableCopy];
+```
+
+If the fully-annotated types become complex, consider using a typedef to
+preserve readability.
+
+```objectivec
+// GOOD:
+
+typedef NSSet<NSDictionary<NSString *, NSDate *> *> TimeZoneMappingSet;
+TimeZoneMappingSet *timeZoneMappings = [TimeZoneMappingSet setWithObjects:...];
+```
+
+### Nullability
+
+Interfaces can be decorated with nullability annotations to describe how the
+interface should be used and how it behaves. Use of nullability regions (e.g.,
+`NS_ASSUME_NONNULL_BEGIN` and `NS_ASSUME_NONNULL_END`) and explicit nullability
+annotations are both accepted. Prefer using the `_Nullable` and `_Nonnull`
+keywords over the `__nullable` and `__nonnull` keywords. For Objective-C methods
+and properties prefer using the context-sensitive, non-underscored keywords,
+e.g., `nonnull` and `nullable`.
+
+```objectivec
+// GOOD:
+
+/** A class representing an owned book. */
+@interface GTMBook : NSObject
+
+@property(readonly, copy, nonnull) NSString *title;
+@property(readonly, copy, nullable) NSString *author;
+
+/** The owner of the book. Setting nil resets to the default owner. */
+@property(copy, null_resettable) NSString *owner;
+
+/** Initializes a book with a title and an optional author. */
+- (nonnull instancetype)initWithTitle:(nonnull NSString *)title
+                               author:(nullable NSString *)author
+    NS_DESIGNATED_INITIALIZER;
+
+/** Returns nil because a book is expected to have a title. */
+- (nullable instancetype)init;
+
+@end
+
+/** Loads books from the file specified by the given path. */
+NSArray<GTMBook *> *_Nullable GTMLoadBooksFromFile(NSString *_Nonnull path);
+```
+
+### Naming - Implementation Functions
+
+Functions that are not exposed in a public header should be prefixed with
+an underscore. For example: `- (void)_updateStatus`.
+
+### Naming - Variable Names
+
+Variable names typically start with a lowercase and use mixed case to delimit
+words. For example: `myLocalVariable`.
+
+### Naming - Instance Variables
+
+Instance variable names are mixed case and should be prefixed with an
+underscore, like `_usernameTextField`.
+
 ## Naming
 
 Names should be as descriptive as possible, within reason. Follow standard
@@ -522,6 +632,11 @@ have a [prefix](#prefixes) that minimizes the chance of a name collision.
 extern NSTimeZone *GTMGetDefaultTimeZone(void);
 extern NSString *GTMGetURLScheme(NSURL *URL);
 ```
+
+#### Implementation Functions
+
+Functions that are not exposed in a public header should be prefixed with
+an underscore. For example: `- (void)_updateStatus`.
 
 ### Variable Names
 
