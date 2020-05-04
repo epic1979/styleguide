@@ -32,13 +32,13 @@ in this guide or in the full [Objective-C Style Guide][objc].
 1. Type all arrays, dictionaries, and sets using [Lightweight Generics][generictyping]
 2. Remove everything that can be removed from the header file to [Keep the Public API Simple][cleanheaders]
 3. [Naming][naming]
-   1. _ before ivars.
+   1. Prefix instance variables with _ (underscore).
 
       ```objc
       BOOL _subsequentAppearance;
       ```
 
-   2. _ before private methods.
+   2. Prefix private methods with _ (underscore).
 
       ```objc
       - (void)_processResponse:(PFXResponse *)response;
@@ -58,9 +58,11 @@ in this guide or in the full [Objective-C Style Guide][objc].
       ```
 
    6. Prefix every class.
-   7. Prefix every enum name.  Prefix every value with the enum name.
+   7. Prefix every enum name.  Prefix every enum value with the enum name.
 4. Use modern syntax
-    - `@[]`, `@{}`, `@()` instead of array/dictionary/number.
+    - `@[]` instead of [NSArray arrayWithObjects:]
+    - `@{}` instead of [NSDictionary dictionaryWithKeysAndObjects:]
+    - `@()` instead of [NSNumber numberWithValue:]
 
       ```objc
       // good
@@ -110,7 +112,7 @@ This is a list of coding restrictions that lead to code that is easier to read a
     return [_info.dataElements elementNamed:name];
     ```
 
-3. No web service (`ECF`) calls in the implementation of a `UIViewController`.  Put that into a loader/manager.
+3. No web service (`ECF`) calls in the implementation of a `UIViewController`.  Put these into a loader/manager.
 
     ```objc
     @interface PFXActivityServerManager
@@ -123,7 +125,7 @@ This is a list of coding restrictions that lead to code that is easier to read a
     @end
     ```
 
-4. No just-in-time ivar creation.  Create these in your `init` when possible.
+4. Avoid just-in-time ivar creation.  Create these in your `init` when possible.
 
     ```objc
     // good
@@ -241,7 +243,7 @@ This is a list of coding restrictions that lead to code that is easier to read a
 8. Never use **Visual Format Language** for layout constraints.  You should using layout anchors like `safeAreaLayoutGuide`.
     - **Visual Format** language relies on parsing strings at runtime, both of which (parsing strings and relying on runtime behavior) mean errors are more difficult to catch.  **Layout anchors** provides type safety and compile time checking to help ensure mistakes are caught right as they are coded.
 9. Never have 4 levels of indentation in a method.  Rarely have 3.
-    - It is difficult to read code that has this much nested logic and the most important priciple in software development is to **[Optimize for the reader, not the writer][optimize-for-the-reader-not-the-writer]**
+    - It is difficult to read code that has this much nested logic and the most important priciple in software development is to [Optimize for the reader, not the writer][optimize-for-the-reader-not-the-writer].
 10. Never implement instance level convenience initializers.  You can have class level convenience initializers as long as they only use the public interface of the class.
     - This ensures that it is always valid to call the convenience method `-new` on an object.
 
@@ -445,7 +447,7 @@ Page guide at column: 100* in Xcode.
 ### Method Declarations and Definitions ([source][method_declarations_and_definitions])
 
 One space should be used between the `-` or `+` and the return type, and no
-spacing in the parameter list except between parameters and any * in the parameter typing.
+spacing in the parameter list except between parameters and any `*` in the parameter typing.
 
 Methods should look like this:
 
