@@ -13,7 +13,7 @@ style guidelines we use for Epic code. If you are modifying a project that
 originated at Epic, you may be pointed to this page to see the style guides
 that apply to that project.
 
-This project holds the [Objective-C Style Guide][objc].
+This project holds the [Objective-C Style Guide][objc] and the [Objective-C PQA Guide][objcpqa].
 
 The style guides in this project are licensed under the CC-By 3.0 License,
 which encourages you to share these documents.
@@ -23,5 +23,6 @@ See [https://creativecommons.org/licenses/by/3.0/][ccl] for more details.
 
 [swift]: https://google.github.io/swift/
 [objc]: objcguide.md
+[objcpqa]: objcpqaguide.md
 [java]: https://google.github.io/styleguide/javaguide.html
 [ccl]: https://creativecommons.org/licenses/by/3.0/
