@@ -698,7 +698,7 @@ like UITextView+GTMAutocomplete.h or NSString+GTMUtils.h.
 
 ### Method Declarations
 
-As shown in the [example](#Example), the recommended order for declarations
+As shown in the [example](#example), the recommended order for declarations
 in an `@interface` declaration are: initializers, properties, and then
 instance methods. Class methods should usually go in a convenience category
 and should begin with any convenience constructors.
